@@ -1,0 +1,24 @@
+name: Codex address requested review changes
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  address-review:
+    if: >-
+      github.event.review.state == 'changes_requested' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: marcomilon/codex-workflows/.github/workflows/address-requested-review.yml@v1
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      branch: ${{ github.event.pull_request.head.ref }}
+      head_sha: ${{ github.event.pull_request.head.sha }}
+      review_id: ${{ github.event.review.id }}
+      review_body: ${{ github.event.review.body }}
+    secrets:
+      openai_api_key: ${{ secrets.OPENAI_API_KEY }}

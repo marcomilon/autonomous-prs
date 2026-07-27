@@ -1,0 +1,22 @@
+name: Codex solve labeled issue
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  solve:
+    if: github.event.issue.state == 'open' && github.event.issue.pull_request == null
+    uses: marcomilon/codex-workflows/.github/workflows/solve-labeled-issue.yml@v1
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      issue_title: ${{ github.event.issue.title }}
+      issue_body: ${{ github.event.issue.body }}
+      default_branch: ${{ github.event.repository.default_branch }}
+    secrets:
+      openai_api_key: ${{ secrets.OPENAI_API_KEY }}
