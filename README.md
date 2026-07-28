@@ -1,34 +1,34 @@
 # Codex workflows
 
-Workflows reutilizables de GitHub Actions para convertir issues etiquetados en PRs y responder a revisiones que solicitan cambios.
+Reusable GitHub Actions workflows that turn labeled issues into PRs and respond to reviews requesting changes.
 
-## Contenido
+## Contents
 
-- `solve-labeled-issue.yml`: implementa un issue abierto cuando recibe un label. Crea o actualiza un draft PR y recupera una rama ya creada si el PR falló.
-- `address-requested-review.yml`: responde solo a una revisión formal de GitHub con estado **Request changes**. Lee los comentarios inline, modifica la rama del PR y deja una respuesta.
-- `examples/`: dispatchers mínimos que deben copiarse en cada repositorio consumidor.
+- `solve-labeled-issue.yml`: implements an open issue when it receives a label. It creates or updates a draft PR and reuses an existing branch if the PR failed.
+- `address-requested-review.yml`: responds only to a formal GitHub review with the **Request changes** status. It reads inline comments, modifies the PR branch, and leaves a response.
+- `examples/`: minimal dispatcher workflows to copy into each consuming repository.
 
-## Publicar este repositorio
+## Publish this repository
 
-1. Crea un repositorio privado llamado `codex-workflows` en tu cuenta GitHub.
-2. Sube el contenido de esta carpeta.
-3. En el repositorio central, ve a **Settings → Actions → General** y permite que los repositorios privados de tu cuenta puedan acceder a sus workflows reutilizables.
-4. Crea y publica un tag de versión, inicialmente `v1`.
+1. Create a private repository named `codex-workflows` in your GitHub account.
+2. Upload the contents of this folder.
+3. In the central repository, go to **Settings → Actions → General** and allow private repositories in your account to access its reusable workflows.
+4. Create and publish a version tag, initially `v1`.
 
-El repositorio central no necesita `OPENAI_API_KEY`.
+The central repository does not need `OPENAI_API_KEY`.
 
-## Configurar un repositorio consumidor
+## Configure a consuming repository
 
-1. En el repositorio consumidor, añade el secret Actions `OPENAI_API_KEY`.
-2. En **Settings → Actions → General → Workflow permissions**, permite que GitHub Actions cree pull requests.
-3. Copia uno o los dos archivos de `examples/` a `.github/workflows/` en el repositorio consumidor.
-4. Reemplaza `marcomilon/codex-workflows@v1` si usas otro propietario, repositorio o versión.
+1. In the consuming repository, add the `OPENAI_API_KEY` Actions secret.
+2. In **Settings → Actions → General → Workflow permissions**, allow GitHub Actions to create pull requests.
+3. Copy one or both files from `examples/` to `.github/workflows/` in the consuming repository.
+4. Replace `marcomilon/codex-workflows@v1` if you use a different owner, repository, or version.
 
-Los dispatchers pasan únicamente la API key que el workflow necesita. El `GITHUB_TOKEN` conserva los permisos del repositorio consumidor; esos permisos se declaran en cada dispatcher.
+The dispatcher workflows pass only the API key required by the workflow. The `GITHUB_TOKEN` retains the consuming repository's permissions; those permissions are declared in each dispatcher.
 
-## Uso
+## Usage
 
-- Añade cualquier label a un issue abierto para lanzar `solve-labeled-issue`.
-- En un PR originado en el mismo repositorio, envía una revisión de tipo **Request changes** para lanzar `address-requested-review`.
+- Add any label to an open issue to trigger `solve-labeled-issue`.
+- For a PR originating from the same repository, submit a **Request changes** review to trigger `address-requested-review`.
 
-Los workflows nunca hacen merge. El workflow de review ignora aprobaciones y comentarios normales para evitar consumo innecesario de la API.
+The workflows never merge. The review workflow ignores approvals and regular comments to avoid unnecessary API usage.
