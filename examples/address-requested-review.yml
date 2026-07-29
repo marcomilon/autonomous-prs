@@ -13,7 +13,7 @@ jobs:
     if: >-
       github.event.review.state == 'changes_requested' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    uses: marcomilon/autonomous-prs/.github/workflows/address-requested-review.yml@v1
+    uses: marcomilon/autonomous-prs/.github/workflows/address-requested-review.yml@v2
     with:
       pr_number: ${{ github.event.pull_request.number }}
       branch: ${{ github.event.pull_request.head.ref }}
