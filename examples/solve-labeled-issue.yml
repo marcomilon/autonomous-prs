@@ -27,7 +27,7 @@ jobs:
         github.event.issue.state == 'open' &&
         github.event.issue.pull_request == null
       )
-    uses: marcomilon/autonomous-prs/.github/workflows/solve-labeled-issue.yml@v5
+    uses: marcomilon/autonomous-prs/.github/workflows/solve-labeled-issue.yml@v6
     with:
       issue_number: ${{ github.event.issue.number }}
       issue_title: ${{ github.event.issue.title }}
