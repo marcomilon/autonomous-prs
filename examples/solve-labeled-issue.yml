@@ -3,6 +3,8 @@ name: Autonomous PRs - solve labeled issue
 on:
   issues:
     types: [labeled]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -11,8 +13,21 @@ permissions:
 
 jobs:
   solve:
-    if: github.event.issue.state == 'open' && github.event.issue.pull_request == null
-    uses: marcomilon/autonomous-prs/.github/workflows/solve-labeled-issue.yml@v4
+    if: >-
+      (
+        github.event_name == 'issues' &&
+        github.event.label.name == 'ready-for-ai' &&
+        github.event.issue.state == 'open' &&
+        github.event.issue.pull_request == null
+      ) || (
+        github.event_name == 'issue_comment' &&
+        startsWith(github.event.comment.body, '/autonomous retry') &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+        contains(github.event.issue.labels.*.name, 'needs-clarification') &&
+        github.event.issue.state == 'open' &&
+        github.event.issue.pull_request == null
+      )
+    uses: marcomilon/autonomous-prs/.github/workflows/solve-labeled-issue.yml@v5
     with:
       issue_number: ${{ github.event.issue.number }}
       issue_title: ${{ github.event.issue.title }}

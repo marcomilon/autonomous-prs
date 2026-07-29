@@ -27,7 +27,7 @@ concurrency:
 jobs:
   solve:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       BASE_BRANCH: ${{ inputs.default_branch }}
       BRANCH: codex/issue-${{ inputs.issue_number }}
@@ -41,6 +41,24 @@ jobs:
         with:
           ref: ${{ inputs.default_branch }}
           fetch-depth: 0
+
+      - name: Ensure workflow labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create 'ai-in-progress' --color '1D76DB' --description 'Autonomous PRs is working on this issue' --force
+          gh label create 'needs-clarification' --color 'FBCA04' --description 'Autonomous PRs needs more product context' --force
+          gh label create 'ready-for-review' --color '5319E7' --description 'An autonomous pull request is ready for review' --force
+
+      - name: Mark issue in progress
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue edit "$ISSUE_NUMBER" \
+            --remove-label 'ready-for-ai' \
+            --remove-label 'needs-clarification' \
+            --remove-label 'ready-for-review' \
+            --add-label 'ai-in-progress'
 
       - name: Create or resume the issue branch
         run: |
@@ -93,6 +111,10 @@ jobs:
             confidence, do not guess and do not modify source code. Instead, write a concise Markdown comment that
             explains what information or decision is needed to `.autonomous-prs-needs-clarification.md`, then finish.
 
+            Before finishing a successful implementation, write `.autonomous-prs-pr-summary.md`. Use these Markdown
+            headings: `## Summary`, `## Changes`, `## Validation`, and `## Risks and limitations`. Be specific and
+            concise. This file is used for the pull request description and must not be committed.
+
       - name: Commit and open or update a draft pull request
         env:
           GH_TOKEN: ${{ github.token }}
@@ -100,8 +122,36 @@ jobs:
           if [ -f .autonomous-prs-needs-clarification.md ]; then
             gh issue comment "$ISSUE_NUMBER" --body-file .autonomous-prs-needs-clarification.md
             rm .autonomous-prs-needs-clarification.md
+            gh issue edit "$ISSUE_NUMBER" \
+              --remove-label 'ai-in-progress' \
+              --add-label 'needs-clarification'
             exit 0
           fi
+
+          if [ -f .autonomous-prs-pr-summary.md ]; then
+            cp .autonomous-prs-pr-summary.md "$RUNNER_TEMP/pr-body.md"
+            rm .autonomous-prs-pr-summary.md
+          else
+            printf '%s\n' \
+              '## Summary' \
+              '' \
+              "Automated draft pull request for GitHub issue #$ISSUE_NUMBER." \
+              '' \
+              '## Changes' \
+              '' \
+              'See the pull request diff.' \
+              '' \
+              '## Validation' \
+              '' \
+              'See the Codex workflow logs for the checks run.' \
+              '' \
+              '## Risks and limitations' \
+              '' \
+              'Review the diff and workflow logs before merging.' \
+              > "$RUNNER_TEMP/pr-body.md"
+          fi
+
+          printf '\n\nFixes #%s\n' "$ISSUE_NUMBER" >> "$RUNNER_TEMP/pr-body.md"
 
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "codex[bot]"
@@ -111,25 +161,19 @@ jobs:
             git push origin "HEAD:$BRANCH"
           elif ! git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
             gh issue comment "$ISSUE_NUMBER" --body \
-              "Codex completed its run but did not produce a repository change. See the workflow logs for details."
+              "Autonomous PRs did not produce a repository change. Clarify the expected outcome, then comment \`/autonomous retry\` to try again."
+            gh issue edit "$ISSUE_NUMBER" \
+              --remove-label 'ai-in-progress' \
+              --add-label 'needs-clarification'
             exit 0
           fi
 
           pr_url="$(gh pr list --head "$BRANCH" --base "$BASE_BRANCH" --state open --json url --jq '.[0].url')"
           if [ -n "$pr_url" ]; then
-            gh pr edit "$pr_url" --title "Fix #$ISSUE_NUMBER: $ISSUE_TITLE"
+            gh pr edit "$pr_url" \
+              --title "Fix #$ISSUE_NUMBER: $ISSUE_TITLE" \
+              --body-file "$RUNNER_TEMP/pr-body.md"
           else
-            printf '%s\n' \
-              '## Summary' \
-              '' \
-              "Automated draft pull request for GitHub issue #$ISSUE_NUMBER." \
-              '' \
-              "Fixes #$ISSUE_NUMBER" \
-              '' \
-              '## Validation' \
-              '' \
-              'See the Codex workflow logs for the checks run.' \
-              > "$RUNNER_TEMP/pr-body.md"
             gh pr create \
               --draft \
               --base "$BASE_BRANCH" \
@@ -137,3 +181,19 @@ jobs:
               --title "Fix #$ISSUE_NUMBER: $ISSUE_TITLE" \
               --body-file "$RUNNER_TEMP/pr-body.md"
           fi
+
+          gh issue edit "$ISSUE_NUMBER" \
+            --remove-label 'ai-in-progress' \
+            --remove-label 'needs-clarification' \
+            --add-label 'ready-for-review'
+
+      - name: Mark a failed run for clarification
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body \
+            "Autonomous PRs could not complete this run. Check the workflow logs, add any missing context, then comment \`/autonomous retry\` to try again."
+          gh issue edit "$ISSUE_NUMBER" \
+            --remove-label 'ai-in-progress' \
+            --add-label 'needs-clarification'

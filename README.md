@@ -22,13 +22,19 @@ The central repository does not need `OPENAI_API_KEY`.
 1. In the consuming repository, add the `OPENAI_API_KEY` Actions secret.
 2. In **Settings → Actions → General → Workflow permissions**, allow GitHub Actions to create pull requests.
 3. Copy one or both files from `examples/` to `.github/workflows/` in the consuming repository.
-4. Replace `marcomilon/autonomous-prs@v4` if you use a different owner, repository, or version.
+4. Copy `examples/ISSUE_TEMPLATE/autonomous-prs-task.yml` to `.github/ISSUE_TEMPLATE/` to give product owners an
+   English task form that applies `ready-for-ai` automatically. Create the `ready-for-ai` label in the repository first.
+5. Replace `marcomilon/autonomous-prs@v5` if you use a different owner, repository, or version.
 
 The dispatcher workflows pass only the API key required by the workflow. The `GITHUB_TOKEN` retains the consuming repository's permissions; those permissions are declared in each dispatcher.
+Each workflow run is capped at 20 minutes.
 
 ## Usage
 
-- Add any label to an open issue to trigger `solve-labeled-issue`.
+- Add the `ready-for-ai` label to an open issue to trigger `solve-labeled-issue`. The workflow adds
+  `ai-in-progress`, `needs-clarification`, and `ready-for-review` as it progresses.
+- When the workflow requests clarification, a repository owner, member, or collaborator can reply with
+  `/autonomous retry` to run it again.
 - For a PR originating from the same repository, submit a **Request changes** review to trigger `address-requested-review`.
 
 The workflows never merge. The review workflow ignores approvals and regular comments to avoid unnecessary API usage.
