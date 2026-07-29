@@ -87,10 +87,20 @@ jobs:
             specifically requires it. Do not modify GitHub Actions workflows, repository permissions, secrets, or
             unrelated files. Do not merge the pull request.
 
+            If the requirements are ambiguous, incomplete, contradictory, or you cannot identify a safe solution with
+            confidence, do not guess and do not modify source code. Instead, write a concise Markdown comment that
+            explains what information or decision is needed to `.autonomous-prs-needs-clarification.md`, then finish.
+
       - name: Commit and open or update a draft pull request
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if [ -f .autonomous-prs-needs-clarification.md ]; then
+            gh issue comment "$ISSUE_NUMBER" --body-file .autonomous-prs-needs-clarification.md
+            rm .autonomous-prs-needs-clarification.md
+            exit 0
+          fi
+
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "codex[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
