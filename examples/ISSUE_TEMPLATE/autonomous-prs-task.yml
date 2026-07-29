@@ -1,13 +1,11 @@
 name: Autonomous PR task
 description: Submit a well-defined product task for Autonomous PRs.
 title: "[Task]: "
-labels:
-  - ready-for-ai
 body:
   - type: markdown
     attributes:
       value: |
-        Complete the required sections before submitting. This issue will be picked up automatically by Autonomous PRs.
+        Complete the required sections before submitting. Add the `ready-for-ai` label when the task is ready for Autonomous PRs.
   - type: textarea
     id: problem
     attributes:

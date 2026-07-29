@@ -23,7 +23,7 @@ The central repository does not need `OPENAI_API_KEY`.
 2. In **Settings → Actions → General → Workflow permissions**, allow GitHub Actions to create pull requests.
 3. Copy one or both files from `examples/` to `.github/workflows/` in the consuming repository.
 4. Copy `examples/ISSUE_TEMPLATE/autonomous-prs-task.yml` to `.github/ISSUE_TEMPLATE/` to give product owners an
-   English task form that applies `ready-for-ai` automatically. Create the `ready-for-ai` label in the repository first.
+   English task form. Create the `ready-for-ai` label in the repository first, then add it when the task is ready.
 5. Replace `marcomilon/autonomous-prs@v5` if you use a different owner, repository, or version.
 
 The dispatcher workflows pass only the API key required by the workflow. The `GITHUB_TOKEN` retains the consuming repository's permissions; those permissions are declared in each dispatcher.
