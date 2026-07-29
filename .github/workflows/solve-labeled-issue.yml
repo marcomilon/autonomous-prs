@@ -73,6 +73,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           openai-api-key: ${{ secrets.openai_api_key }}
+          model: gpt-5.6-terra
+          effort: medium
           prompt: |
             Implement GitHub issue #${{ inputs.issue_number }} in this repository.
 

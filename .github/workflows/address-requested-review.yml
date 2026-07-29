@@ -65,6 +65,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           openai-api-key: ${{ secrets.openai_api_key }}
+          model: gpt-5.6-terra
+          effort: medium
           prompt: |
             Address the submitted "Request changes" review on pull request #${{ inputs.pr_number }}.
 

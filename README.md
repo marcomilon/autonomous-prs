@@ -22,7 +22,7 @@ The central repository does not need `OPENAI_API_KEY`.
 1. In the consuming repository, add the `OPENAI_API_KEY` Actions secret.
 2. In **Settings → Actions → General → Workflow permissions**, allow GitHub Actions to create pull requests.
 3. Copy one or both files from `examples/` to `.github/workflows/` in the consuming repository.
-4. Replace `marcomilon/autonomous-prs@v3` if you use a different owner, repository, or version.
+4. Replace `marcomilon/autonomous-prs@v4` if you use a different owner, repository, or version.
 
 The dispatcher workflows pass only the API key required by the workflow. The `GITHUB_TOKEN` retains the consuming repository's permissions; those permissions are declared in each dispatcher.
 
