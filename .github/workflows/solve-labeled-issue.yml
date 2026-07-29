@@ -1,4 +1,4 @@
-name: Codex solve labeled issue
+name: Autonomous PRs - solve labeled issue
 
 on:
   workflow_call:

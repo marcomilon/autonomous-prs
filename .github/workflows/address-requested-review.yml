@@ -1,4 +1,4 @@
-name: Codex address requested review changes
+name: Autonomous PRs - address requested review changes
 
 on:
   workflow_call:

@@ -1,4 +1,4 @@
-name: Codex solve labeled issue
+name: Autonomous PRs - solve labeled issue
 
 on:
   issues:
@@ -12,7 +12,7 @@ permissions:
 jobs:
   solve:
     if: github.event.issue.state == 'open' && github.event.issue.pull_request == null
-    uses: marcomilon/codex-workflows/.github/workflows/solve-labeled-issue.yml@v1
+    uses: marcomilon/autonomous-prs/.github/workflows/solve-labeled-issue.yml@v1
     with:
       issue_number: ${{ github.event.issue.number }}
       issue_title: ${{ github.event.issue.title }}
